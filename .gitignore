@@ -1,0 +1,27 @@
+# ENV
+
+# Node
+node_modules
+package-lock.json
+
+# Editor
+.vscode
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Tests
+coverage
+
+# backend/jest.config.js
+
+export default {    
+  testEnvironment: "node",
+  transform: {}
+    };
+
+.env.example
+node_modules
