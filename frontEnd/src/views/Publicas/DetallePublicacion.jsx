@@ -1,5 +1,4 @@
-// //src/views/Publicas/DetallePublicacion.jsx
-
+//src/views/Publicas/DetallePublicacion.jsx
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
@@ -8,39 +7,76 @@ export default function DetallePublicacion() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const [pizza, setPizza] = useState(null);
+
+  const [verImg, setVerImg] = useState(null);
+  const [comentarios, setComentarios] = useState([]);
+  const [texto, setTexto] = useState("");
 
   useEffect(() => {
-    fetch("/pizzas.json")
+    // 🔵 Cargar publicación
+    fetch(`http://localhost:3000/publicaciones/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Respuesta no válida");
+        return res.json();
+      })
+      .then(setVerImg)
+      .catch(err => console.error("❌ Error publicación:", err));
+
+    // 🔵 Cargar comentarios
+    fetch(`http://localhost:3000/comentarios/${id}`)
       .then(res => res.json())
-      .then(data => setPizza(data.find(p => p.id === id)));
+      .then(setComentarios)
+      .catch(err => console.error("❌ Error comentarios:", err));
+
   }, [id]);
 
+  // 🔵 Enviar comentario
+  const enviarComentario = async () => {
+    if (!user) return navigate("/login");
+    if (!texto.trim()) return;
+
+    const res = await fetch("http://localhost:3000/comentarios", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify({
+        publicacion_id: id,
+        comentario: texto,
+      }),
+    });
+
+    const nuevo = await res.json();
+    setComentarios([nuevo, ...comentarios]);
+    setTexto("");
+  };
+
   const requireAuth = (action) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+    if (!user) return navigate("/login");
     action();
   };
 
-  if (!pizza) return <p className="text-center mt-5">Cargando...</p>;
+  if (!verImg) return <p className="text-center mt-5">Cargando...</p>;
 
   return (
     <div className="container mt-5">
-
       <button className="btn btn-secondary mb-3" onClick={() => navigate(-1)}>
         ⬅ Volver
       </button>
 
       <div className="card shadow-lg p-3">
-        <img src={pizza.img} className="rounded" />
+        <img
+          src={verImg.imagenurl}
+          className="rounded mb-3"
+          alt={verImg.titulo}
+        />
 
         <div className="card-body">
-          <h2>{pizza.name}</h2>
-          <p>{pizza.desc}</p>
+          <h2>{verImg.titulo}</h2>
+          <p>{verImg.descripcion}</p>
 
-          <h4>${pizza.price.toLocaleString("es-CL")}</h4>
+          <h4>${Number(verImg.precio).toLocaleString("es-CL")}</h4>
 
           <div className="d-flex gap-2">
             <button
@@ -61,8 +97,37 @@ export default function DetallePublicacion() {
               Favoritos
             </button>
           </div>
+
+          {/* 🔥 COMENTARIOS */}
+          <hr />
+          <h5>Comentarios</h5>
+
+          <div className="mb-3">
+            <textarea
+              className="form-control"
+              placeholder="Escribe un comentario..."
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+            />
+            <button className="btn btn-primary mt-2" onClick={enviarComentario}>
+              Comentar
+            </button>
+          </div>
+
+          {comentarios.map((c) => (
+            <div key={c.id} className="border p-2 mb-2 rounded">
+              <strong>{c.nombre}</strong>
+              <p className="mb-0">{c.comentario}</p>
+              <small className="text-muted">
+                {new Date(c.fecha).toLocaleString()}
+              </small>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
+
+
+
