@@ -3,6 +3,9 @@ import { createContext, useState, useEffect } from "react";
 
 export const UserContext = createContext();
 
+//api url
+const ApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
@@ -26,7 +29,7 @@ const UserProvider = ({ children }) => {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch("http://localhost:3000/mis-publicaciones", {
+      const res = await fetch(`${ApiUrl}/mis-publicaciones`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -43,7 +46,7 @@ const UserProvider = ({ children }) => {
 
   const register = async (form) => {
     try {
-      const response = await fetch("http://localhost:3000/usuarios", {
+      const response = await fetch(`${ApiUrl}/usuarios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
@@ -64,7 +67,7 @@ const UserProvider = ({ children }) => {
 
   const login = async ({ email, password }) => {
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch(`${ApiUrl}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -124,7 +127,7 @@ const UserProvider = ({ children }) => {
 
   const cargarPublicaciones = async () => {
     try {
-      const res = await fetch("http://localhost:3000/publicaciones");
+      const res = await fetch(`${ApiUrl}/publicaciones`);
       const data = await res.json();
 
       setPublicaciones(Array.isArray(data) ? data : []);
@@ -137,7 +140,7 @@ const UserProvider = ({ children }) => {
   const editarPublicacion = async (id, form) => {
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:3000/publicaciones/${id}`, {
+    const res = await fetch(`${ApiUrl}/publicaciones/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -158,8 +161,8 @@ const UserProvider = ({ children }) => {
 
   const borrarPublicacion = async (id) => {
     const token = localStorage.getItem("token");
-
-    const res = await fetch(`http://localhost:3000/publicaciones/${id}`, {
+    
+    const res = await fetch(`${ApiUrl}/publicaciones/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -173,6 +176,7 @@ const UserProvider = ({ children }) => {
   return (
     <UserContext.Provider
       value={{
+        ApiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000',
         user,
         users,
         publicaciones,

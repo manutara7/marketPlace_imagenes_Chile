@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useContext } from "react";
 import { UserContext } from "../../context/userContext";
+import {APiUrl} from '../../context/userContext';
 
 export default function CrearPublicacion() {
   const { agregarPublicacion } = useContext(UserContext);
@@ -26,7 +27,7 @@ export default function CrearPublicacion() {
     return;
   }
   try {
-    const response = await fetch("http://localhost:3000/publicaciones", {
+    const response = await fetch(`${APiUrl}/publicaciones`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

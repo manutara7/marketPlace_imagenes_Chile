@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from "../../context/userContext";
 import IniciarSesionModal from "./IniciarSesionModal";
+import {APiUrl} from '../../context/userContext';
 
 const ZoomImagen = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const ZoomImagen = () => {
 
   // 📥 cargar comentarios
   useEffect(() => {
-    fetch(`http://localhost:3000/comentarios/${id}`)
+    fetch(`${APiUrl}/comentarios/${id}`)
       .then(res => res.json())
       .then(data => setComentarios(Array.isArray(data) ? data : []))
       .catch(() => setComentarios([]));
@@ -53,7 +54,7 @@ const ZoomImagen = () => {
       return;
     }
 
-    const res = await fetch("http://localhost:3000/comentarios", {
+    const res = await fetch(`${APiUrl}/comentarios`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

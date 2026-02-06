@@ -29,17 +29,6 @@ const Login = () => {
     setError(result.error);
   }
 };
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   const ok = await login(form);
-
-  //   if (ok) {
-  //     navigate("/perfil"); // ✅ VA AL PERFIL
-  //   } else {
-  //     setError("Email o contraseña incorrectos");
-  //   }
-  // };
 
   return (
     <div className="caja d-flex flex-column flex-md-row justify-content-center align-items-center px-3">

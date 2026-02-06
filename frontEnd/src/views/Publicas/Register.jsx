@@ -30,17 +30,6 @@ const handleSubmit = async (e) => {
   }
 };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     await register(form);
-  //     navigate("/aviso-login");
-  //   } catch (error) {
-  //     alert(error.message || "Error al registrar usuario");
-  //   }
-  // };
-
   return (
     <div className="caja d-flex flex-column flex-md-row justify-content-center align-items-center px-3">
 

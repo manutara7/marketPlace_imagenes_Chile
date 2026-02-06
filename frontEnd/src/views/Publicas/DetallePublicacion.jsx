@@ -2,6 +2,7 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
+import {APiUrl} from '../../context/userContext';
 
 export default function DetallePublicacion() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ export default function DetallePublicacion() {
 
   useEffect(() => {
     // 🔵 Cargar publicación
-    fetch(`http://localhost:3000/publicaciones/${id}`)
+    fetch(`${APiUrl}/publicaciones/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Respuesta no válida");
         return res.json();
@@ -23,7 +24,7 @@ export default function DetallePublicacion() {
       .catch(err => console.error("❌ Error publicación:", err));
 
     // 🔵 Cargar comentarios
-    fetch(`http://localhost:3000/comentarios/${id}`)
+    fetch(`${APiUrl}/comentarios/${id}`)
       .then(res => res.json())
       .then(setComentarios)
       .catch(err => console.error("❌ Error comentarios:", err));
@@ -35,7 +36,7 @@ export default function DetallePublicacion() {
     if (!user) return navigate("/login");
     if (!texto.trim()) return;
 
-    const res = await fetch("http://localhost:3000/comentarios", {
+    const res = await fetch(`${APiUrl}/comentarios`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

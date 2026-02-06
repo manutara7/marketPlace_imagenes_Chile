@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useContext } from "react";
 import { UserContext } from "../../context/userContext";
+import {APiUrl} from '../../context/userContext';
 
 export default function AdminPanel() {
   const { user, cargarPublicaciones } = useContext(UserContext);
@@ -29,7 +30,7 @@ export default function AdminPanel() {
   /* ------------------ CARGAS ------------------ */
 
   const cargarUsuarios = async () => {
-    const res = await fetch("http://localhost:3000/usuarios", {
+    const res = await fetch(`${APiUrl}/usuarios`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -37,7 +38,7 @@ export default function AdminPanel() {
   };
 
   const cargarTodasPublicaciones = async () => {
-    const res = await fetch("http://localhost:3000/publicaciones");
+    const res = await fetch(`${APiUrl}/publicaciones`);
     const data = await res.json();
     setPublicaciones(Array.isArray(data) ? data : []);
   };
@@ -52,7 +53,7 @@ export default function AdminPanel() {
   const eliminarUsuario = async (id) => {
     if (!confirm("¿Eliminar usuario?")) return;
 
-    await fetch(`http://localhost:3000/usuarios/${id}`, {
+    await fetch(`${APiUrl}/usuarios/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -62,7 +63,7 @@ export default function AdminPanel() {
   };
 
   const banearUsuario = async (u) => {
-    await fetch(`http://localhost:3000/usuarios/${u.id}`, {
+    await fetch(`${APiUrl}/usuarios/${u.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -76,7 +77,7 @@ export default function AdminPanel() {
   };
 
   const guardarEdicion = async () => {
-    await fetch(`http://localhost:3000/usuarios/${editando.id}`, {
+    await fetch(`${APiUrl}/usuarios/${editando.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +96,7 @@ export default function AdminPanel() {
   const eliminarPublicacion = async (id) => {
     if (!confirm("¿Eliminar publicación?")) return;
 
-    await fetch(`http://localhost:3000/publicaciones/${id}`, {
+    await fetch(`${APiUrl}/publicaciones/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -115,7 +116,7 @@ export default function AdminPanel() {
   agregarLog(`👁 Publicación ${p.id} ${p.hidden ? "visible" : "oculta"}`);
 
   // 👇 luego sincroniza backend
-  await fetch(`http://localhost:3000/publicaciones/${p.id}`, {
+  await fetch(`${APiUrl}/publicaciones/${p.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
