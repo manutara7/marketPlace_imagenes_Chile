@@ -36,7 +36,7 @@ CREATE TABLE publicaciones (
   imagenurl TEXT NOT NULL,
   precio INTEGER NOT NULL CHECK (precio >= 0),
   usuario_id INTEGER REFERENCES usuarios(id),
-  hidden BOOLEAN DEFAULT false;
+  hidden BOOLEAN DEFAULT false
 );
 INSERT INTO publicaciones (titulo, descripcion, imagenurl, precio, usuario_id)
 VALUES
@@ -59,7 +59,6 @@ CREATE TABLE comentarios (
   usuario_id INTEGER NOT NULL,
   comentario TEXT NOT NULL,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
   FOREIGN KEY (publicacion_id) REFERENCES publicaciones(id) ON DELETE CASCADE,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
