@@ -1,64 +1,131 @@
-//src/components/Privados/MisPublicaciones.jsx
+//frontEnd/src/components/Privados/MisPublicaciones.jsx
 
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/userContext";
 
 export default function MisPublicaciones({ onAccion }) {
-  const { addFavorito, addCarrito } = useContext(UserContext);
+  const {
+    misPublicaciones,
+    cargarMisPublicaciones,
+    editarPublicacion,
+    borrarPublicacion
+  } = useContext(UserContext);
 
-  const post = {
-    id: 1,
-    title: "Laptop Gamer",
-    price: 800000,
-    img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+  const [editando, setEditando] = useState(null);
+  const [form, setForm] = useState({});
+
+  useEffect(() => {
+    cargarMisPublicaciones();
+  }, []);
+
+  const startEdit = (post) => {
+    setEditando(post.id);
+    setForm(post);
+  };
+
+  const actualizar = async () => {
+    await editarPublicacion(editando, form);
+    onAccion("Publicación actualizada ✅");
+    setEditando(null);
+  };
+
+  const eliminar = async (id) => {
+    await borrarPublicacion(id);
+    onAccion("Publicación eliminada ❌");
   };
 
   return (
     <section>
       <h2>Mis publicaciones</h2>
 
-      <article className="post-card">
-        <img src={post.img} />
-        <h4>{post.title}</h4>
-        <p>${post.price.toLocaleString("es-CL")}</p>
+      {misPublicaciones.map((post) => (
+        <article key={post.id} className="post-card">
 
-        <div className="post-actions">
-          <button
-            onClick={() => {
-              addFavorito(post);
-              onAccion("Agregado a favoritos ❤️");
-            }}
-          >
-            ❤️ Favorito
-          </button>
+          {editando === post.id ? (
 
-          <button
-            onClick={() => {
-              addCarrito(post);
-              onAccion("Agregado al carrito 🛒");
-            }}
-          >
-            🛒 Carrito
-          </button>
-        </div>
-      </article>
+            /* ✏️ MODO EDICIÓN */
+            <div className="form-edit">
+
+              <div className="form-group">
+                <label>Título</label>
+                <input
+                  className="form-input"
+                  value={form.titulo}
+                  onChange={(e) =>
+                    setForm({ ...form, titulo: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Descripción</label>
+                <textarea
+                  className="form-textarea"
+                  value={form.descripcion}
+                  onChange={(e) =>
+                    setForm({ ...form, descripcion: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Imagen URL</label>
+                <input
+                  className="form-input"
+                  value={form.imagenurl}
+                  onChange={(e) =>
+                    setForm({ ...form, imagenurl: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Precio</label>
+                <input
+                  className="form-input"
+                  type="number"
+                  value={form.precio}
+                  onChange={(e) =>
+                    setForm({ ...form, precio: Number(e.target.value) })
+                  }
+                />
+              </div>
+
+              <button className="btn btn-save" onClick={actualizar}>
+                Guardar cambios ✅
+              </button>
+
+            </div>
+
+          ) : (
+
+            /* 👁️ MODO NORMAL */
+            <>
+              <img src={post.imagenurl} alt={post.titulo} />
+              <h4>{post.titulo}</h4>
+              <p>${post.precio.toLocaleString("es-CL")}</p>
+
+              <div className="post-actions">
+                <button
+                  className="btn btn-edit"
+                  onClick={() => startEdit(post)}
+                >
+                  ✏️ Editar
+                </button>
+
+                <button
+                  className="btn btn-delete"
+                  onClick={() => eliminar(post.id)}
+                >
+                  🗑 Eliminar
+                </button>
+              </div>
+            </>
+
+          )}
+
+        </article>
+      ))}
     </section>
   );
 }
-
-
-// export default function MisPublicaciones() {
-//   return (
-//     <section>
-//       <h2>Mis publicaciones</h2>
-
-//       <div className="posts-grid">
-//         <article className="post-card">
-//           <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" />
-//           <h4>Laptop Gamer</h4>
-//           <p>$800.000</p>
-//         </article>
-//       </div>
-//     </section>
-//   );
-// }
