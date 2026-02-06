@@ -1,0 +1,83 @@
+[
+  {
+    "id": 1,
+    "titulo": "Torres del Paine",
+    "descripcion": "Parque nacional de la Patagonia chilena, famoso por sus montañas, lagos y glaciares.",
+    "imagenurl": "https://images.unsplash.com/photo-1544986581-efac024faf62?auto=format&fit=crop&w=800&q=80",
+    "precio": 3500,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 3,
+    "titulo": "Valparaíso",
+    "descripcion": "Ciudad puerto llena de cerros, ascensores, murales y cultura.",
+    "imagenurl": "https://images.unsplash.com/photo-1587502537745-84b86da1204f?auto=format&fit=crop&w=800&q=80",
+    "precio": 2200,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 4,
+    "titulo": "Isla de Pascua",
+    "descripcion": "Isla chilena en el Pacífico famosa por sus moáis y paisajes volcánicos.",
+    "imagenurl": "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?auto=format&fit=crop&w=800&q=80",
+    "precio": 4200,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 5,
+    "titulo": "Lago General Carrera",
+    "descripcion": "Uno de los lagos más grandes de Chile, conocido por las catedrales de mármol.",
+    "imagenurl": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+    "precio": 3000,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 6,
+    "titulo": "Santiago",
+    "descripcion": "Capital de Chile, rodeada de montañas y con gran vida cultural.",
+    "imagenurl": "https://images.unsplash.com/photo-1599946347371-68eb71b16afc?auto=format&fit=crop&w=800&q=80",
+    "precio": 1800,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 8,
+    "titulo": "Volcán Osorno",
+    "descripcion": "Uno de los volcanes más icónicos de Chile, ubicado en la Región de Los Lagos.",
+    "imagenurl": "https://images.unsplash.com/photo-1610642372651-7c6f8269c9f9?auto=format&fit=crop&w=800&q=80",
+    "precio": 3300,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 2,
+    "titulo": "Desierto de Atacama",
+    "descripcion": "El desierto más árido del mundo, con paisajes únicos y cielos impresionantes.",
+    "imagenurl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80",
+    "precio": 2800,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 7,
+    "titulo": "Chiloé",
+    "descripcion": "Isla del sur de Chile famosa por sus palafitos, iglesias y mitología.",
+    "imagenurl": "https://images.unsplash.com/photo-1605120731611-0c1bc2f5c4de?auto=format&fit=crop&w=800&q=80",
+    "precio": 2600,
+    "usuario_id": null,
+    "hidden": false
+  },
+  {
+    "id": 9,
+    "titulo": "nueva Publicacion",
+    "descripcion": "nuevaPublicacion",
+    "imagenurl": " https://placedog.net/500/280 ",
+    "precio": 3,
+    "usuario_id": 5,
+    "hidden": false
+  }
+]
