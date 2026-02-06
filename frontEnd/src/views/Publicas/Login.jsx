@@ -1,8 +1,8 @@
-// //src/views/Publicas/Login.jsx
+//frontEnd/src/views/Publicas/Login.jsx
 
 import { useState, useContext } from "react";
-import { UserContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/userContext";
 
 const Login = () => {
   const { login } = useContext(UserContext);
@@ -13,19 +13,33 @@ const Login = () => {
     password: ""
   });
 
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const result = await login(form);
 
-    const ok = login(form);
+  if (result.ok) {
+    navigate("/perfil");
+  } else {
+    setError(result.error);
+  }
+};
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-    if (ok) {
-      navigate("/perfil");
-    }
-  };
+  //   const ok = await login(form);
+
+  //   if (ok) {
+  //     navigate("/perfil"); // ✅ VA AL PERFIL
+  //   } else {
+  //     setError("Email o contraseña incorrectos");
+  //   }
+  // };
 
   return (
     <div className="caja d-flex flex-column flex-md-row justify-content-center align-items-center px-3">
@@ -67,17 +81,12 @@ const Login = () => {
           <button className="btn btn-warning w-100 fw-bold">
             Entrar
           </button>
-          <div className="text-center mt-3">
-              <p className="mb-1">¿No tienes cuenta?</p>
-              <button
-                type="button"
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => navigate("/register")}
-              >
-                Crear cuenta
-              </button>
-         </div>
 
+          {error && (
+            <p className="text-danger text-center mt-3">
+              {error}
+            </p>
+          )}
         </form>
       </div>
     </div>
@@ -85,5 +94,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
