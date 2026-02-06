@@ -1,147 +1,144 @@
-# React + Vite
-echo "# pagWeb_MarketPlace_imagenesChile_part_frontEnd_G91" 
+🖼️ YaiYo Marketplace — Frontend
 
-## Install
+Frontend de YaiYo, una plataforma tipo marketplace para publicar, visualizar y comprar imágenes.
+Los usuarios pueden registrarse, iniciar sesión, crear publicaciones, comentar, agregar favoritos y gestionar un carrito de compra.
 
-```bash
+Este proyecto consume una API REST desarrollada en Node.js + PostgreSQL.
+
+🚀 Tecnologías
+
+⚛️ React
+
+⚡ Vite
+
+🎨 Bootstrap 5
+
+🔁 React Router DOM
+
+🌐 Context API
+
+🔐 JWT (autenticación con backend)
+
+💾 LocalStorage (persistencia de sesión)
+
+📦 Instalación
 npm install
-```
 
-## Run
-
-```bash
+▶ Ejecutar proyecto
 npm run dev
-```
-<!-- ////////////////////////////////////////////////// -->
-🖼️ YaiYo – Frontend
-
-Frontend de YaiYo, una plataforma de publicación y venta de imágenes, donde los usuarios pueden registrarse, crear publicaciones, agregar imágenes a favoritos, añadirlas al carrito y simular un proceso de compra.
-
-🚀 Tecnologías utilizadas
-
-    +⚛️ React
-    +
-    +⚡ Vite
-    +
-    +🎨 Bootstrap 5
-    +
-    +🔁 React Router DOM
-    +
-    +🌐 Context API
-    +
-    +🗃️ LocalStorage (persistencia)
 
 
-🧠 Funcionalidades Público
+El frontend se conecta por defecto a:
 
-    Ver publicaciones
+http://localhost:3000
 
-    Registro de usuarios
 
-    Inicio de sesión
+(Asegúrate de tener el backend corriendo)
 
-    Navbar con contador de carrito
+🧠 Funcionalidades
+🌍 Público
 
-    Visualización de precios en CLP
+Visualización de publicaciones
 
-    Usuario autenticado
+Zoom de imagen
 
-    Perfil de usuario
+Sistema de comentarios
 
-    Subida de publicaciones
+Modal para iniciar sesión al intentar comentar
 
-    Galería de publicaciones propias
+Registro de usuarios
 
-    Sistema de favoritos ❤️
+Inicio de sesión
 
-    Carrito de compras 🛒
+Visualización de precios en CLP
 
-    Eliminación de favoritos
+🔐 Usuario autenticado
 
-    Eliminación de productos del carrito
+Perfil de usuario
 
-    Resumen de compra
+Crear publicaciones
 
-    Simulación de pago
+Editar publicaciones propias
 
-🧩 Estructura del proyecto
+Eliminar publicaciones propias
+
+Galería personal
+
+Sistema de favoritos ❤️
+
+Carrito de compras 🛒
+
+Eliminación de productos del carrito
+
+Resumen de compra
+
+Simulación de pago
+
+🧩 Arquitectura del proyecto
 src/
 ├── assets/
-│   └── img/
 ├── components/
 │   ├── Publicos/
 │   └── Privados/
 ├── context/
 │   └── userContext.jsx
+├── routes/
+│   └── PrivateRoute.jsx
 ├── views/
 │   ├── Publicas/
 │   └── Privadas/
-├── routes/
-│   └── PrivateRoute.jsx
 ├── App.jsx
-└── main.jsx
-└── index.css.jsx
+├── main.jsx
+└── index.css
 
-🔐 Manejo de estado
+🔐 Manejo de estado global
 
-    El estado global se gestiona mediante Context API:
-    
-    Usuario autenticado
-    
-    Publicaciones
-    
-    Favoritos
-    
-    Carrito
+La aplicación usa Context API para manejar:
+
+Usuario autenticado
+
+Token JWT
+
+Publicaciones
+
+Publicaciones propias
+
+Favoritos
+
+Carrito de compras
 
 Totales automáticos
 
+La sesión se restaura automáticamente desde localStorage.
+
 🛒 Carrito
 
-    Agregar / eliminar publicaciones
+Agregar / eliminar publicaciones
 
-    Cálculo automático de total
+Cálculo automático de total
 
-    Botón de pago (simulado)
+Contador en navbar
 
-    Visualización en navbar
+Simulación de pago
 
 ❤️ Favoritos
 
-    Agregar / eliminar publicaciones
+Agregar publicaciones
 
-    Visualización en perfil
+Eliminar favoritos
 
-    Persistencia local
+Vista en perfil
 
-🎨 UI / UX
+Persistencia local
 
-    Navbar fija
+💬 Comentarios
 
-    Layout tipo dashboard en perfil
+Carga automática por publicación
 
-    Diseño responsive
+Comentarios protegidos por login
 
-    Feedback visual
+Modal de autenticación para usuarios no logueados
 
-    Botones de acción rápidos
+👨‍💻 Autor
 
-📌 Próximas mejoras
-
-    Integración con backend
-
-    Autenticación JWT
-
-    Pasarela de pago real
-
-    Subida real de imágenes (Cloudinary / S3)
-
-    Filtros y buscador
-
-    Sistema de comentarios
-
-    Likes y métricas
-
-👨‍💻 Autor 
-Proyecto personal de desarrollo frontend en React.# pagWeb_part_frontend
-
+Proyecto personal de desarrollo fullstack con React + Node.js.
