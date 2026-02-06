@@ -30,9 +30,12 @@ export default function Carrito() {
                   ❌
                 </button>
 
-                <img src={c.img} alt={c.title} />
-                <h4>{c.title}</h4>
-                <p>${c.price.toLocaleString("es-CL")}</p>
+                <img src={c.imagenurl} alt={c.titulo} />
+                <h4>{c.titulo}</h4>
+                <p>
+                  {/* ${c.precio.toLocaleString("es-CL")} */}
+                  ${c.precio ? c.precio.toLocaleString("es-CL") : "0"}
+                </p>
               </article>
             ))}
           </div>
