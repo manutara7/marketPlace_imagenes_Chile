@@ -1,4 +1,4 @@
-//src/views/Publicas/Register.jsx
+//frontEnd/src/views/Publicas/Register.jsx
 
 import { useState, useContext } from "react";
 import { UserContext } from "../../context/userContext";
@@ -9,22 +9,37 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: "",
+    nombre: "",
     email: "",
-    password: ""
+    password: "",
+    role: "user" // 👈 por defecto
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const result = await register(form);
 
-    register(form);
+  if (result.ok) {
     navigate("/aviso-login");
+  } else {
+    alert(result.error); // o setError si quieres UI bonita
+  }
+};
 
-  };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     await register(form);
+  //     navigate("/aviso-login");
+  //   } catch (error) {
+  //     alert(error.message || "Error al registrar usuario");
+  //   }
+  // };
 
   return (
     <div className="caja d-flex flex-column flex-md-row justify-content-center align-items-center px-3">
@@ -47,8 +62,8 @@ const Register = () => {
               type="text"
               className="form-control"
               placeholder="Tu nombre"
-              name="name"
-              value={form.name}
+              name="nombre"
+              value={form.nombre}
               onChange={handleChange}
               required
             />
@@ -86,9 +101,10 @@ const Register = () => {
           </button>
         </form>
       </div>
-
     </div>
   );
 };
 
 export default Register;
+
+
