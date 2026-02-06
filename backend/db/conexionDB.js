@@ -9,7 +9,7 @@ export const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: String(process.env.DB_PASSWORD), // 🔥 forzar string
-  database: process.env.DB_NAME,
+  database: process.env.DATABSE,
   port: process.env.DB_PORT,
   allowExitOnIdle: true,
 });
