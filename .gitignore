@@ -25,3 +25,5 @@ export default {
 
 .env.example
 node_modules
+../backend/obtenerHashToAdmin.js
+../backend/obtenerHashToTest.js
