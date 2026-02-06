@@ -1,3 +1,5 @@
+//frontEnd/src/components/Publicos/IniciarSesionModal.jsx
+
 import { useNavigate } from "react-router-dom";
 
 const IniciarSesionModal = ({ show, onClose }) => {
