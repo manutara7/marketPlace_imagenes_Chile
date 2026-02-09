@@ -4,12 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from "../../context/userContext";
 import IniciarSesionModal from "./IniciarSesionModal";
-import {APiUrl} from '../../context/userContext';
+
+
 
 const ZoomImagen = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { user } = useContext(UserContext);
+  const { user, ApiUrl } = useContext(UserContext);
 
   const [comentarios, setComentarios] = useState([]);
   const [texto, setTexto] = useState("");
@@ -32,11 +33,11 @@ const ZoomImagen = () => {
 
   // 📥 cargar comentarios
   useEffect(() => {
-    fetch(`${APiUrl}/comentarios/${id}`)
+    fetch(`${ApiUrl}/comentarios/${id}`)
       .then(res => res.json())
       .then(data => setComentarios(Array.isArray(data) ? data : []))
       .catch(() => setComentarios([]));
-  }, [id]);
+  }, [id, ApiUrl]);
 
   // 🔽 scroll automático a comentarios
   useEffect(() => {
@@ -54,7 +55,7 @@ const ZoomImagen = () => {
       return;
     }
 
-    const res = await fetch(`${APiUrl}/comentarios`, {
+    const res = await fetch(`${ApiUrl}/comentarios`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -67,7 +68,6 @@ const ZoomImagen = () => {
     });
 
     const nuevo = await res.json();
-
     setComentarios([nuevo, ...comentarios]);
     setTexto("");
   };

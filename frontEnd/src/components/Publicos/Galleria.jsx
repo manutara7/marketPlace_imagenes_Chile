@@ -1,5 +1,5 @@
-// //Frontend/src/components/Publicos/Galleria.jsx
-// Frontend/src/components/Publicos/Galleria.jsx
+//Frontend/src/components/Publicos/Galleria.jsx
+
 
 import { useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -38,8 +38,6 @@ const Galleria = () => {
       <h2 className="text-center mb-4">🇨🇱 Imagenes de Chile</h2>
 
       <div className="row g-4">
-        {/* {Array.isArray(publicaciones) &&
-          publicaciones.map((datos) => ( */}
           {Array.isArray(publicaciones) &&
           publicaciones
             .filter(p => !p.hidden)

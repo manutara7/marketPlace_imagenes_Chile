@@ -1,282 +1,286 @@
-// //frontEnd/src/components/Privados/AdminPanel.jsx
+  //frontEnd/src/components/Privados/AdminPanel.jsx
 
-import { useEffect, useState, useContext } from "react";
-import { UserContext } from "../../context/userContext";
-import {APiUrl} from '../../context/userContext';
+  import { useEffect, useState, useContext } from "react";
+  import { UserContext } from "../../context/userContext";
 
-export default function AdminPanel() {
-  const { user, cargarPublicaciones } = useContext(UserContext);
+  export default function AdminPanel() {
+    const { user, cargarPublicaciones, ApiUrl } = useContext(UserContext);
 
-  const [usuarios, setUsuarios] = useState([]);
-  const [publicaciones, setPublicaciones] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const [editando, setEditando] = useState(null);
+    const [usuarios, setUsuarios] = useState([]);
+    const [publicaciones, setPublicaciones] = useState([]);
+    const [logs, setLogs] = useState([]);
+    const [editando, setEditando] = useState(null);
 
-  const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-  if (user?.role !== "admin") {
-    return <h3 className="text-center mt-5">⛔ Acceso restringido</h3>;
+    if (user?.role !== "admin") {
+      return <h3 className="text-center mt-5">⛔ Acceso restringido</h3>;
+    }
+
+    /* ------------------ LOGS ------------------ */
+
+    const agregarLog = (texto) => {
+      setLogs((prev) => [
+        { id: Date.now(), texto, fecha: new Date().toLocaleString() },
+        ...prev
+      ]);
+    };
+
+    /* ------------------ CARGAS ------------------ */
+
+    const cargarUsuarios = async () => {
+      const res = await fetch(`${ApiUrl}/usuarios`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setUsuarios(Array.isArray(data) ? data : []);
+    };
+
+    const cargarTodasPublicaciones = async () => {
+      const res = await fetch(`${ApiUrl}/publicaciones`);
+      const data = await res.json();
+      setPublicaciones(Array.isArray(data) ? data : []);
+    };
+
+    useEffect(() => {
+      cargarUsuarios();
+      cargarTodasPublicaciones();
+    }, []);
+
+    /* ------------------ USUARIOS ------------------ */
+
+    const eliminarUsuario = async (id) => {
+      if (!confirm("¿Eliminar usuario?")) return;
+
+      await fetch(`${ApiUrl}/usuarios/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      agregarLog(`🗑 Usuario eliminado ID ${id}`);
+      cargarUsuarios();
+    };
+
+    const banearUsuario = async (u) => {
+      await fetch(`${ApiUrl}/usuarios/${u.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...u, banned: !u.banned })
+      });
+
+      agregarLog(`🚫 Usuario ${u.email} ${u.banned ? "desbaneado" : "baneado"}`);
+      cargarUsuarios();
+    };
+
+    const guardarEdicion = async () => {
+      await fetch(`${ApiUrl}/usuarios/${editando.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(editando)
+      });
+
+      agregarLog(`✏️ Usuario editado ID ${editando.id}`);
+      setEditando(null);
+      cargarUsuarios();
+    };
+
+    /* ------------------ PUBLICACIONES ------------------ */
+
+    const eliminarPublicacion = async (id) => {
+      if (!confirm("¿Eliminar publicación?")) return;
+
+      await fetch(`${ApiUrl}/publicaciones/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      agregarLog(`🗑 Publicación eliminada ID ${id}`);
+      cargarTodasPublicaciones();
+      cargarPublicaciones();
+    };
+
+   const ocultarPublicacion = async (p) => {
+  try {
+    console.log("CLICK ocultar:", p);
+
+    const actualizado = { ...p, hidden: !Boolean(p.hidden) };
+    const res = await fetch(`${ApiUrl}/publicaciones/${p.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(actualizado)
+    });
+    console.log("RESPUESTA STATUS:", res.status);
+    const data = await res.text();
+    console.log("RESPUESTA BODY:", data);
+    await cargarTodasPublicaciones();
+    await cargarPublicaciones();
+  } catch (err) {
+    console.error("ERROR FETCH:", err);
   }
-
-  /* ------------------ LOGS ------------------ */
-
-  const agregarLog = (texto) => {
-    setLogs((prev) => [
-      { id: Date.now(), texto, fecha: new Date().toLocaleString() },
-      ...prev
-    ]);
-  };
-
-  /* ------------------ CARGAS ------------------ */
-
-  const cargarUsuarios = async () => {
-    const res = await fetch(`${APiUrl}/usuarios`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    setUsuarios(Array.isArray(data) ? data : []);
-  };
-
-  const cargarTodasPublicaciones = async () => {
-    const res = await fetch(`${APiUrl}/publicaciones`);
-    const data = await res.json();
-    setPublicaciones(Array.isArray(data) ? data : []);
-  };
-
-  useEffect(() => {
-    cargarUsuarios();
-    cargarTodasPublicaciones();
-  }, []);
-
-  /* ------------------ USUARIOS ------------------ */
-
-  const eliminarUsuario = async (id) => {
-    if (!confirm("¿Eliminar usuario?")) return;
-
-    await fetch(`${APiUrl}/usuarios/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    agregarLog(`🗑 Usuario eliminado ID ${id}`);
-    cargarUsuarios();
-  };
-
-  const banearUsuario = async (u) => {
-    await fetch(`${APiUrl}/usuarios/${u.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ ...u, banned: !u.banned })
-    });
-
-    agregarLog(`🚫 Usuario ${u.email} ${u.banned ? "desbaneado" : "baneado"}`);
-    cargarUsuarios();
-  };
-
-  const guardarEdicion = async () => {
-    await fetch(`${APiUrl}/usuarios/${editando.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(editando)
-    });
-
-    agregarLog(`✏️ Usuario editado ID ${editando.id}`);
-    setEditando(null);
-    cargarUsuarios();
-  };
-
-  /* ------------------ PUBLICACIONES ------------------ */
-
-  const eliminarPublicacion = async (id) => {
-    if (!confirm("¿Eliminar publicación?")) return;
-
-    await fetch(`${APiUrl}/publicaciones/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    agregarLog(`🗑 Publicación eliminada ID ${id}`);
-    cargarTodasPublicaciones();
-    cargarPublicaciones();
-  };
-  const ocultarPublicacion = async (p) => {
-  const actualizado = { ...p, hidden: !p.hidden };
-
-  // 👇 cambia estado inmediato en React
-  setPublicaciones(prev =>
-    prev.map(x => x.id === p.id ? actualizado : x)
-  );
-
-  agregarLog(`👁 Publicación ${p.id} ${p.hidden ? "visible" : "oculta"}`);
-
-  // 👇 luego sincroniza backend
-  await fetch(`${APiUrl}/publicaciones/${p.id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(actualizado)
-  });
 };
 
-  /* ------------------ STATS ------------------ */
 
-  const stats = {
-    totalUsuarios: usuarios.length,
-    baneados: usuarios.filter((u) => u.banned).length,
-    totalPublicaciones: publicaciones.length,
-    ocultas: publicaciones.filter((p) => p.hidden).length
-  };
 
-  /* ------------------ UI ------------------ */
+    /* ------------------ STATS ------------------ */
 
-  return (
-    <section className="container mt-4">
+    const stats = {
+      totalUsuarios: usuarios.length,
+      baneados: usuarios.filter((u) => u.banned).length,
+      totalPublicaciones: publicaciones.length,
+      ocultas: publicaciones.filter((p) => p.hidden).length
+    };
 
-      <h2 className="text-center mb-4">🛠 Admin Dashboard</h2>
+    /* ------------------ UI ------------------ */
 
-      {/* STATS */}
-      <div className="row text-center mb-4">
-        <div className="col badge bg-dark p-3">👥 {stats.totalUsuarios} usuarios</div>
-        <div className="col badge bg-danger p-3">🚫 {stats.baneados} baneados</div>
-        <div className="col badge bg-primary p-3">🖼 {stats.totalPublicaciones} posts</div>
-        <div className="col badge bg-secondary p-3">👁 {stats.ocultas} ocultos</div>
-      </div>
+    return (
+      <section className="container mt-4">
 
-      {/* USUARIOS */}
-      <h3>Usuarios</h3>
+        <h2 className="text-center mb-4">🛠 Admin Dashboard</h2>
 
-      <table className="table table-bordered table-hover align-middle">
-        <thead className="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th style={{ width: 200 }}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((u) => (
-            <tr key={u.id}>
-              <td>{u.id}</td>
+        {/* STATS */}
+        <div className="row text-center mb-4">
+          <div className="col badge bg-dark p-3">👥 {stats.totalUsuarios} usuarios</div>
+          <div className="col badge bg-danger p-3">🚫 {stats.baneados} baneados</div>
+          <div className="col badge bg-primary p-3">🖼 {stats.totalPublicaciones} posts</div>
+          <div className="col badge bg-secondary p-3">👁 {stats.ocultas} ocultos</div>
+        </div>
 
-              <td>
-                {editando?.id === u.id ? (
-                  <input
-                    className="form-control"
-                    value={editando.nombre}
-                    onChange={(e) =>
-                      setEditando({ ...editando, nombre: e.target.value })
-                    }
-                  />
-                ) : u.nombre}
-              </td>
+        {/* USUARIOS */}
+        <h3>Usuarios</h3>
 
-              <td>{u.email}</td>
-              <td><span className="badge bg-info">{u.role}</span></td>
-              <td>
-                {u.banned
-                  ? <span className="badge bg-danger">Baneado</span>
-                  : <span className="badge bg-success">Activo</span>}
-              </td>
-
-              <td className="d-flex gap-2">
-                <button className="btn btn-sm btn-danger"
-                  onClick={() => eliminarUsuario(u.id)}>🗑</button>
-
-                <button className="btn btn-sm btn-warning"
-                  onClick={() => banearUsuario(u)}>
-                  {u.banned ? "Desbanear" : "Banear"}
-                </button>
-
-                {editando?.id === u.id ? (
-                  <button className="btn btn-sm btn-success"
-                    onClick={guardarEdicion}>💾</button>
-                ) : (
-                  <button className="btn btn-sm btn-secondary"
-                    onClick={() => setEditando(u)}>✏️</button>
-                )}
-              </td>
+        <table className="table table-bordered table-hover align-middle">
+          <thead className="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th style={{ width: 200 }}>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usuarios.map((u) => (
+              <tr key={u.id}>
+                <td>{u.id}</td>
 
-      {/* PUBLICACIONES */}
-      <h3 className="mt-5">Publicaciones</h3>
+                <td>
+                  {editando?.id === u.id ? (
+                    <input
+                      className="form-control"
+                      value={editando.nombre}
+                      onChange={(e) =>
+                        setEditando({ ...editando, nombre: e.target.value })
+                      }
+                    />
+                  ) : u.nombre}
+                </td>
 
-      <div className="row g-3">
-        {publicaciones.map((p) => (
-          <div key={p.id} className="col-md-3">
-            <div className="card h-100 shadow-sm">
+                <td>{u.email}</td>
+                <td><span className="badge bg-info">{u.role}</span></td>
+                <td>
+                  {u.banned
+                    ? <span className="badge bg-danger">Baneado</span>
+                    : <span className="badge bg-success">Activo</span>}
+                </td>
 
-              <img
-                src={p.imagenurl}
-                className="card-img-top"
-                style={{ height: 140, objectFit: "cover" }}
-              />
+                <td className="d-flex gap-2">
+                  <button className="btn btn-sm btn-danger"
+                    onClick={() => eliminarUsuario(u.id)}>🗑</button>
 
-              <div className="card-body d-flex flex-column">
-
-                <h6>{p.titulo}</h6>
-                <p className="fw-bold">${p.precio}</p>
-
-                <span className={`badge mb-2 ${p.hidden ? "bg-secondary" : "bg-success"}`}>
-                  {p.hidden ? "Oculta" : "Visible"}
-                </span>
-
-                <div className="d-flex flex-column gap-2 mt-auto">
-
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    onClick={() => ocultarPublicacion(p)}>
-                    👁 Ocultar / Mostrar
+                  <button className="btn btn-sm btn-warning"
+                    onClick={() => banearUsuario(u)}>
+                    {u.banned ? "Desbanear" : "Banear"}
                   </button>
 
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={() => eliminarPublicacion(p.id)}>
-                    🗑 Eliminar
-                  </button>
+                  {editando?.id === u.id ? (
+                    <button className="btn btn-sm btn-success"
+                      onClick={guardarEdicion}>💾</button>
+                  ) : (
+                    <button className="btn btn-sm btn-secondary"
+                      onClick={() => setEditando(u)}>✏️</button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
+        {/* PUBLICACIONES */}
+        <h3 className="mt-5">Publicaciones</h3>
+
+        <div className="row g-3">
+          {publicaciones.map((p) => (
+            <div key={p.id} className="col-md-3">
+              <div className="card h-100 shadow-sm">
+
+                <img
+                  src={p.imagenurl}
+                  className="card-img-top"
+                  style={{ height: 140, objectFit: "cover" }}
+                />
+
+                <div className="card-body d-flex flex-column">
+
+                  <h6>{p.titulo}</h6>
+                  <p className="fw-bold">${p.precio}</p>
+
+                  <span className={`badge mb-2 ${p.hidden ? "bg-secondary" : "bg-success"}`}>
+                    {p.hidden ? "Oculta" : "Visible"}
+                  </span>
+
+                  <div className="d-flex flex-column gap-2 mt-auto">
+
+                    <button
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => ocultarPublicacion(p)}>
+                      👁 Ocultar / Mostrar
+                    </button>
+
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => eliminarPublicacion(p.id)}>
+                      🗑 Eliminar
+                    </button>
+
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* LOGS */}
-      <h3 className="mt-5">Logs del sistema</h3>
+        {/* LOGS */}
+        <h3 className="mt-5">Logs del sistema</h3>
 
-      <div
-        className="rounded p-3"
-        style={{
-          maxHeight: 220,
-          overflow: "auto",
-          background: "#111",
-          color: "#0f0",
-          fontFamily: "monospace"
-        }}
-      >
-        {logs.map((l) => (
-          <div key={l.id}>
-            [{l.fecha}] {l.texto}
-          </div>
-        ))}
-      </div>
+        <div
+          className="rounded p-3"
+          style={{
+            maxHeight: 220,
+            overflow: "auto",
+            background: "#111",
+            color: "#0f0",
+            fontFamily: "monospace"
+          }}
+        >
+          {logs.map((l) => (
+            <div key={l.id}>
+              [{l.fecha}] {l.texto}
+            </div>
+          ))}
+        </div>
 
-    </section>
-  );
-}
+      </section>
+    );
+  }
 
 

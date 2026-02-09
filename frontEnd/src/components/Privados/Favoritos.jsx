@@ -27,14 +27,13 @@ const Favoritos = () => {
 
               <img
                 src={dataFav.imagenurl}
-                className="card-img-top"
+                className="card-img-top imgFavoritos"
                 alt={dataFav.titulo}
               />
 
               <div className="card-body">
                 <h6>{dataFav.titulo}</h6>
                 <p className="fw-bold">
-                  {/* ${(dataFav.precio ?? 0).toLocaleString("es-CL")} */}
                   ${(dataFav.precio ?? 0).toLocaleString("es-CL")}
                 </p>
 

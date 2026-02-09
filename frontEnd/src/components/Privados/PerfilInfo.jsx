@@ -26,13 +26,6 @@ export default function PerfilInfo({ perfil, setPerfil }) {
       />
 
       <input
-        name="apellido"
-        placeholder="Apellido"
-        value={perfil.apellido}
-        onChange={handleChange}
-      />
-
-      <input
         name="correo"
         placeholder="Correo"
         value={perfil.correo}

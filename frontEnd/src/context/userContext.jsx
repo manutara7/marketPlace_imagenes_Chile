@@ -1,21 +1,29 @@
 //frontEnd/src/context/userContext.jsx
 import { createContext, useState, useEffect } from "react";
-
+import { apiFetch } from "../api/apiFetch";
+import { ApiUrl } from "../api/config";
 export const UserContext = createContext();
 
-//api url
-const ApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+
 
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [loadingUser, setLoadingUser] = useState(true);
 
-  // 🔐 restaurar sesión al recargar
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setUser({ token });
+   const cargarPerfil = async () => {
+    const res = await apiFetch("/perfil", {}, logout);
+    if (!res) {
+      setLoadingUser(false);
+      return;
     }
+    const data = await res.json();
+    setUser(data);
+    setLoadingUser(false);
+  };
+  useEffect(() => {
+    cargarPerfil();
   }, []);
 
   const [publicaciones, setPublicaciones] = useState([]);
@@ -42,7 +50,44 @@ const UserProvider = ({ children }) => {
 
   // 🛒 CARRITO
   const [carrito, setCarrito] = useState([]);
+  // Persistencia de datos
+  useEffect(() => {
+  if (!user) return;
+
+  const key = `carrito_${user.id}`;
+  const data = localStorage.getItem(key);
+
+  if (data) setCarrito(JSON.parse(data));
+  else setCarrito([]);
+}, [user]);
+
+useEffect(() => {
+  if (!user) return;
+
+  const key = `carrito_${user.id}`;
+  localStorage.setItem(key, JSON.stringify(carrito));
+}, [carrito, user]);
+
+// FAVORITOS
   const [favoritos, setFavoritos] = useState([]);
+  // Persistencia de datos
+useEffect(() => {
+  if (!user) return;
+
+  const key = `favoritos_${user.id}`;
+  const data = localStorage.getItem(key);
+
+  if (data) setFavoritos(JSON.parse(data));
+  else setFavoritos([]);
+}, [user]);
+
+useEffect(() => {
+  if (!user) return;
+
+  const key = `favoritos_${user.id}`;
+  localStorage.setItem(key, JSON.stringify(favoritos));
+}, [favoritos, user]);
+
 
   const register = async (form) => {
     try {
@@ -53,13 +98,10 @@ const UserProvider = ({ children }) => {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         return { ok: false, error: data.error || "Error al registrar" };
       }
-
       return { ok: true, user: data };
-
     } catch (error) {
       return { ok: false, error: "Error de conexión con el servidor" };
     }
@@ -74,34 +116,44 @@ const UserProvider = ({ children }) => {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         return { ok: false, error: data.error || "Credenciales incorrectas" };
       }
-
       localStorage.setItem("token", data.token);
-
       setUser({
         ...data.user,
         token: data.token
       });
-
       return { ok: true, user: data.user };
-
     } catch (error) {
       return { ok: false, error: "Error de conexión con el servidor" };
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    setCarrito([]);
-  };
+const logout = () => {
+  if (user) {
+    localStorage.removeItem(`carrito_${user.id}`);
+    localStorage.removeItem(`favoritos_${user.id}`);
+  }
+  localStorage.removeItem("token");
+  setUser(null);
+  setCarrito([]);
+  setFavoritos([]);
+};
 
-  const addCarrito = (producto) => {
-    setCarrito([...carrito, producto]);
-  };
+const addCarrito = (producto) => {
+  setCarrito(prev => {
+    const existente = prev.find(p => p.id === producto.id);
+    if (existente) {
+      return prev.map(p =>
+        p.id === producto.id
+          ? { ...p, cantidad: p.cantidad + 1 }
+          : p
+      );
+    }
+    return [...prev, { ...producto, cantidad: 1 }];
+  });
+};
 
   const removeCarrito = (id) => {
     setCarrito(carrito.filter((item) => item.id !== id));
@@ -110,8 +162,8 @@ const UserProvider = ({ children }) => {
   const totalCantidad = carrito.length;
 
   const totalPrecio = carrito.reduce(
-    (total, item) => total + item.precio,
-    0
+  (total, item) => total + item.precio * item.cantidad,
+  0
   );
 
   const addFavorito = (img) => {
@@ -176,7 +228,8 @@ const UserProvider = ({ children }) => {
   return (
     <UserContext.Provider
       value={{
-        ApiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+        loadingUser,
+        ApiUrl,
         user,
         users,
         publicaciones,

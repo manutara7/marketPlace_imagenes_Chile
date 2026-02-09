@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useContext } from "react";
 import { UserContext } from "../../context/userContext";
-import {APiUrl} from '../../context/userContext';
 
 export default function CrearPublicacion() {
-  const { agregarPublicacion } = useContext(UserContext);
+  const { agregarPublicacion, ApiUrl } = useContext(UserContext);
+
+
   const [form, setForm] = useState({
     titulo: "",
     descripcion: "",
@@ -27,7 +28,7 @@ export default function CrearPublicacion() {
     return;
   }
   try {
-    const response = await fetch(`${APiUrl}/publicaciones`, {
+    const response = await fetch(`${ApiUrl}/publicaciones`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

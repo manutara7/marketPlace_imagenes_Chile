@@ -2,9 +2,8 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
-import {APiUrl} from '../../context/userContext';
 
-export default function DetallePublicacion() {
+export default function DetallePublicacion({APiUrl}) {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
