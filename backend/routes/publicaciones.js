@@ -2,66 +2,95 @@
 
   import express from "express";
   import { agregarPublicacion } from "../consultas/publicaciones.js";
-  import { verificarToken } from "../middlewares/authMiddleware.js";
+  import { verificarToken } from "../middleware/authMiddleware.js";
+  import { reportarConsulta } from "../middleware/reportarConsulta.js"; 
+  import { modificarPublicacion, eliminarPublicacion, obtenerPublicaciones } from "../consultas/publicaciones.js";
   import { MisPublicaciones } from "../consultas/publicaciones.js";
-  import { modificarPublicacion, eliminarPublicacion } from "../consultas/publicaciones.js";
+
 
 
   const router = express.Router();
 
-  router.get("/mis-publicaciones", verificarToken, async (req, res) => {
-  const publicaciones = await MisPublicaciones(req.user.id);
-  res.json(publicaciones);
-  });
-  
-  router.post("/publicaciones", verificarToken, async (req, res) => {
-    try {
-      const { titulo, descripcion, imagenurl, precio } = req.body;
+  router.get("/admin/publicaciones",reportarConsulta, verificarToken, async (req, res) => {
+  const { rows } = await pool.query(`SELECT * FROM publicaciones`);
+  res.json(rows);
+});
 
-      const publicacion = await agregarPublicacion(
-        titulo,
-        descripcion,
-        imagenurl,
-        precio,
-        req.user.id
-      );
-
-      res.status(201).json(publicacion);
-    } catch (error) {
-      console.error("Error creando publicación:", error);
-      res.status(500).json({ error: "Error al crear publicación" });
-    }
-  });  
-  
-  // ✏️ EDITAR PUBLICACIÓN
-router.put("/publicaciones/:id", verificarToken, async (req, res) => {
+router.get("/mis-publicaciones", verificarToken, reportarConsulta, async (req, res) => {
   try {
-    const { titulo, descripcion, imagenurl, precio } = req.body;
-
-    const data = await modificarPublicacion(
-    req.params.id,
-    req.body.titulo,
-    req.body.descripcion,
-    req.body.imagenurl,
-    req.body.precio,
-    req.user // 👈 pasamos el user entero
-    );
-
+    const data = await MisPublicaciones(req.user.id);
     res.json(data);
   } catch (error) {
-    console.error("Error editando:", error);
-    res.status(500).json({ error: "Error al editar publicación" });
+    console.error("Error obteniendo mis publicaciones:", error);
+    res.status(500).json({ error: "Error al obtener mis publicaciones" });
   }
 });
 
-// 🗑 ELIMINAR PUBLICACIÓN
-router.delete("/publicaciones/:id", verificarToken, async (req, res) => {
+  router.put("/publicaciones/:id", verificarToken, reportarConsulta, async (req, res) => {
   try {
-    await eliminarPublicacion(req.params.id, req.user.id);
+    const { id } = req.params;
+    const { titulo, descripcion, imagenurl, precio, hidden } = req.body;
+
+    const pub = await modificarPublicacion(
+      id,
+      titulo,
+      descripcion,
+      imagenurl,
+      precio,
+      hidden,
+      req.user
+    );
+
+    res.json(pub);
+
+  } catch (err) {
+    console.error("ERROR PUT:", err);
+    res.status(500).json({ error: "Error al modificar publicación" });
+  }
+});
+
+
+router.put("/admin/publicaciones/:id", verificarToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { titulo, descripcion, imagenurl, precio, hidden } = req.body;
+
+    const pub = await modificarPublicacion(
+      id,
+      titulo,
+      descripcion,
+      imagenurl,
+      precio,
+      hidden,
+      req.user
+    );
+
+    res.json(pub);
+  } catch (err) {
+    console.error("ERROR PUT ADMIN:", err);
+    res.status(500).json({ error: "Error admin modificando publicación" });
+  }
+});
+
+
+// 🗑 ELIMINAR PUBLICACIÓN
+router.delete("/publicaciones/:id",reportarConsulta, verificarToken, async (req, res) => {
+  try {
+    await eliminarPublicacion(req.params.id, req.user);
     res.json({ ok: true });
   } catch (error) {
     console.error("Error eliminando:", error);
     res.status(500).json({ error: "Error al eliminar publicación" });
+  }
+});
+// 👁 VER TODAS LAS PUBLICACIONES (admin + público)
+router.get("/publicaciones", reportarConsulta, async (req, res) => {
+  try {
+    const data = await obtenerPublicaciones();
+    res.json(data);
+  } catch (error) {
+    console.error("Error obteniendo publicaciones:", error);
+    res.status(500).json({ error: "Error al obtener publicaciones" });
   }
 });
 

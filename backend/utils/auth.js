@@ -8,23 +8,23 @@ export const verificarCredenciales = async (email, password) => {
     "SELECT * FROM usuarios WHERE email = $1",
     [email]
   );
-  console.log("JWT_SECRET:", process.env.JWT_SECRET);
-
   if (rows.length === 0) return null;
-
   const usuario = rows[0];
 
-  // 🔥 PROTECCIÓN ANTI ERROR 500
+  // 🚫 BLOQUEO POR BAN
+  if (usuario.banned) {
+    console.warn("Usuario baneado intentando login:", email);
+    throw new Error("USER_BANNED");
+  }
   if (!usuario.password || usuario.password.length < 20) {
     console.error("Password inválido en DB:", usuario.password);
     return null;
   }
-
   const passwordValida = await bcrypt.compare(password, usuario.password);
-
   if (!passwordValida) return null;
-
   return usuario;
 };
+
+
 
 

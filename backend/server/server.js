@@ -1,42 +1,53 @@
 //backend/server/server.js
+
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import fs from "fs";
-import comentariosRoutes from "../routes/comentarios.js";
-
-  
+import { pool } from "../db/conexionDB.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
-console.log("ENV PATH:", path.resolve(__dirname, "../.env"));
+dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
+// console.log("ENV PATH:", path.resolve(__dirname, "../.env"));
+// console.log("ENV PATH:", path.resolve(__dirname, "../.env.local"));
 
 
-console.log("DB:", process.env.DB_NAME);
-console.log("JWT:", process.env.JWT_SECRET);
+console.log("DB:", process.env.DB_DATABASE);
+// console.log("JWT:", process.env.JWT_SECRET);
+
 
 //middlewares de autenticacion
-import { verificarToken, soloAdmin } from "../middlewares/authMiddleware.js";
+import {verificarToken, soloAdmin} from "../middleware/authMiddleware.js";
+import {reportarConsulta} from "../middleware/reportarConsulta.js";
+import { reportarUsuario } from "../middleware/reportarUsuario.js";  
+
 //login usuarios
 import authRoutes from "../routes/auth.js";
 import publicacionesRoutes from "../routes/publicaciones.js";
-
+import comentariosRoutes from "../routes/comentarios.js";
 
 // publicaciones
-import { agregarPublicacion } from "../consultas/publicaciones.js";
-import { verPublicaciones, obtenerPublicaciones } from "../consultas/publicaciones.js";
-import { modificarPublicacion } from "../consultas/publicaciones.js";
-import { eliminarPublicacion } from "../consultas/publicaciones.js";
+import { 
+  agregarPublicacion,
+  verPublicaciones,
+  obtenerPublicaciones,
+  modificarPublicacion,
+  eliminarPublicacion
+} from "../consultas/publicaciones.js";
 
 // usuarios
-import { agregarUsuario } from "../consultas/usuarios.js";
-import { obtenerUsuarios, verUsuarios } from "../consultas/usuarios.js";
-import { modificarUsuarios } from "../consultas/usuarios.js";
-import { eliminarUsuario } from "../consultas/usuarios.js";
+import { 
+  agregarUsuario,
+  obtenerUsuarios,
+  verUsuarios,
+  modificarUsuarios,
+  eliminarUsuario
+} from "../consultas/usuarios.js";
 
 const app = express();
 app.use(express.json());
@@ -64,23 +75,7 @@ export async function syncToJson() {
   fs.writeFileSync(filePath, JSON.stringify(publicaciones, null, 2));
 }
 
-/* -------- PUBLICACIONES -------- */
-
-// Middleware para reportar consultas a /publicaciones/:id
-const reportarConsulta = (req, res, next) => {
-  const { method, originalUrl, params, query, body } = req;
-
-  console.log(`
-🕒 Fecha: ${new Date().toLocaleString()}
-📌 Método: ${method}
-🌐 Ruta: ${originalUrl}
-🆔 Params: ${JSON.stringify(params)}
-🔎 Query: ${JSON.stringify(query)}
-📦 Body: ${JSON.stringify(body)}
-  `);
-
-  next();
-};
+// -------- PUBLICACIONES -------- 
 
 app.get("/publicaciones", reportarConsulta, async (req, res) => {
   try {
@@ -118,7 +113,6 @@ app.post("/publicaciones", verificarToken, reportarConsulta, async (req, res) =>
 //modoficar publicacion
 app.put("/publicaciones/:id", verificarToken, reportarConsulta, async (req, res) => {
   try {
-    // const { titulo, descripcion, imagenurl, precio } = req.body;
     const { titulo, descripcion, imagenurl, precio, hidden } = req.body;
     const data = await modificarPublicacion(req.params.id, titulo, descripcion, imagenurl, precio, hidden, req.user );
     await syncToJson();
@@ -142,23 +136,22 @@ app.delete("/publicaciones/:id", verificarToken, reportarConsulta, async (req, r
 
 
 /* -------- USUARIOS -------- */
-// Middleware para reportar consultas a /usuarios/:id
-const reportarUsuario = (req, res, next) => {
-  const { method, originalUrl, params, query, body } = req;
 
-  console.log(`
-🕒 Fecha: ${new Date().toLocaleString()}
-📌 Método: ${method}
-🌐 Ruta: ${originalUrl}
-🆔 Params: ${JSON.stringify(params)}
-🔎 Query: ${JSON.stringify(query)}
-📦 Body: ${JSON.stringify(body)}
-  `);
+app.get("/perfil", verificarToken, reportarUsuario, async (req, res) => {
+  try {
+    const { id } = req.user;
+    const result = await pool.query(
+      "SELECT id, nombre, email, role FROM usuarios WHERE id = $1",
+      [id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo perfil" });
+  }
+});
+ 
 
-  next();
-};
-
-app.get("/usuarios", reportarUsuario, verificarToken, soloAdmin, async (req, res) => {
+app.get("/usuarios", verificarToken, reportarUsuario, soloAdmin, async (req, res) => {
   try {
     const data = await obtenerUsuarios();
     res.json(data);
@@ -167,7 +160,7 @@ app.get("/usuarios", reportarUsuario, verificarToken, soloAdmin, async (req, res
   }
 });
 
-app.get("/usuarios/:id", reportarUsuario, verificarToken, soloAdmin, async (req, res) => {
+app.get("/usuarios/:id", verificarToken, reportarUsuario, soloAdmin, async (req, res) => {
   try {
     const data = await verUsuarios(req.params.id);
     res.json(data);
@@ -187,8 +180,28 @@ app.post("/usuarios", reportarUsuario, async (req, res) => {
   }
 });
 
+app.put("/usuarios/:id", verificarToken, reportarUsuario, soloAdmin, async (req, res) => {
+  try {
+    const { nombre, email, password, role, banned } = req.body;
+
+    const data = await modificarUsuarios(
+      req.params.id,
+      nombre,
+      email,
+      password,
+      role,
+      banned
+    );
+
+    res.json(data);
+  } catch (e) {
+    console.error("❌ Error modificando usuario:", e);
+    res.status(500).json({ error: "Error al modificar usuario" });
+  }
+});
+
 //eliminar usuario
-app.delete("/usuarios/:id", reportarUsuario, verificarToken, async (req, res) => {
+app.delete("/usuarios/:id", verificarToken, reportarUsuario, async (req, res) => {
   try {
     const data = await eliminarUsuario(req.params.id);
     if (!data) {

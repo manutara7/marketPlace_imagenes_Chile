@@ -4,12 +4,9 @@ import {pool } from "../db/conexionDB.js"
 
 //PUBLICACIONES
 
-//obtener publicaciones
 export const obtenerPublicaciones = async () => {
   const { rows } = await pool.query(`
-    SELECT * 
-    FROM publicaciones 
-    WHERE hidden IS NOT TRUE
+    SELECT * FROM publicaciones
   `);
   return rows;
 };
@@ -70,7 +67,7 @@ export const modificarPublicacion = async (
   hidden,
   user
 ) => {
-  const query = `
+  const consulta = `
     UPDATE publicaciones
     SET titulo=$1,
         descripcion=$2,
@@ -81,11 +78,21 @@ export const modificarPublicacion = async (
     RETURNING *;
   `;
 
-  const values = [titulo, descripcion, imagenurl, precio, hidden, id];
+  const valores = [
+    titulo,
+    descripcion,
+    imagenurl,
+    precio,
+    hidden === true || hidden === "true",
+    id
+  ];
 
-  const { rows } = await pool.query(query, values);
+  const { rows } = await pool.query(consulta, valores);
   return rows[0];
 };
+
+
+
 
 
 

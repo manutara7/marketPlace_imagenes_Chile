@@ -3,6 +3,7 @@
 import {pool } from "../db/conexionDB.js" 
 import bcrypt from "bcryptjs";
 
+
 //obtener usuario
 export const obtenerUsuarios = async () => {
   const { rows } = await pool.query("SELECT * FROM usuarios");
@@ -43,13 +44,19 @@ export const agregarUsuario = async (nombre, email, password, role) => {
 };
 
 //modificar usuario
-export const modificarUsuarios = async (id, nombre, email, password, role) => {
+export const modificarUsuarios = async (id, nombre, email, password, role, banned) => {
   const consulta = `
-    UPDATE usuarios SET nombre = $2, email = $3, password = $4, role = $5 WHERE id = $1
+    UPDATE usuarios
+    SET nombre = $2,
+        email = $3,
+        password = $4,
+        role = $5,
+        banned = $6
+    WHERE id = $1
     RETURNING *`;
-
-  const values = [id, nombre, email, password, role];
+  const values = [id, nombre, email, password, role, banned];
   const { rows } = await pool.query(consulta, values);
   return rows[0];
 };
+
 

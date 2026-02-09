@@ -1,7 +1,7 @@
 //backend/routes/comentarios.js
 
 import express from "express";
-import { verificarToken } from "../middlewares/authMiddleware.js";
+import { verificarToken } from "../middleware/authMiddleware.js";
 import { agregarComentario, obtenerComentarios } from "../consultas/comentarios.js";
 
 const router = express.Router();
