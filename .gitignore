@@ -17,9 +17,6 @@ npm-debug.log*
 # Tests
 coverage
 
-# backend/jest.config.js
-
-
 
 node_modules
 ../backend/obtenerHashToAdmin.js
